@@ -77,3 +77,118 @@ section {
   font-size: 0.9rem;
   font-weight: bold;
 }
+
+.now-entry p {
+  white-space: pre-line;
+}
+
+/* ---------- My Face: corkboard ---------- */
+.corkboard {
+  /* Make the board wider than the 700px text column */
+  width: min(1100px, 95vw);
+  margin: 2.5rem 0;
+  margin-left: 50%;
+  transform: translateX(-50%);
+
+  /* Cork texture: tan base with two layers of tiny speckles */
+  background-color: #c9a27b;
+  background-image:
+    radial-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1.5px),
+    radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1.5px);
+  background-size: 7px 7px, 11px 11px;
+  background-position: 0 0, 3px 5px;
+
+  /* Wooden frame and the "lying on top of the page" shadow */
+  border: 14px solid #8b5a2b;
+  border-radius: 6px;
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.35),
+    inset 0 0 30px rgba(0, 0, 0, 0.25);
+
+  /* Arrange the notes */
+  padding: 3rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2.5rem;
+  min-height: 450px;
+}
+
+/* Everything pinned to the board */
+.corkboard > * {
+  position: relative;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+  rotate: -2deg;
+  transition: rotate 0.2s, scale 0.2s;
+}
+
+/* Vary the tilt so it looks hand-pinned */
+.corkboard > *:nth-child(2n) { rotate: 3deg; }
+.corkboard > *:nth-child(3n) { rotate: -4deg; }
+
+/* Straighten and lift a note when you hover over it */
+.corkboard > *:hover {
+  rotate: 0deg;
+  scale: 1.05;
+  z-index: 2;
+}
+
+/* The pushpin */
+.corkboard > *::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Sticky notes */
+.sticky-note {
+  width: 200px;
+  min-height: 180px;
+  padding: 1.5rem 1.25rem 1rem;
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  font-size: 1.1rem;
+  color: var(--neutral-dark);
+}
+
+.sticky-note p { margin-top: 0; }
+
+.signature {
+  display: block;
+  text-align: right;
+  font-size: 0.95rem;
+}
+
+/* The three colors visitors can choose from */
+.note-purple { background: var(--mauve); }
+.note-teal   { background: var(--accent-light); }
+.note-coral  { background: var(--secondary); }
+
+/* Polaroids */
+.polaroid {
+  background: white;
+  width: 220px;
+  margin: 0;
+  padding: 12px 12px 16px;
+}
+
+.polaroid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.polaroid figcaption {
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  text-align: center;
+  margin-top: 0.75rem;
+  color: var(--neutral-dark);
+}
