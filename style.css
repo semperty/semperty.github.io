@@ -1,0 +1,24 @@
+:root {
+  --primary: #6A5ACD;
+  --title: #4B3FBF;
+  --mauve: #C58ED6;
+  --secondary: #FF7F50;
+  --accent-muted: #20B2AA;
+  --accent-bright: #00CED1;
+  --accent-light: #40E0D0;
+  --neutral-light: #F5F5F5;
+  --neutral-dark: #333333;
+}
+
+body {
+  background: var(--neutral-light);
+  color: var(--neutral-dark);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  line-height: 1.6;
+}
+
+h1, h2 { color: var(--title); }
+a { color: var(--primary); }
+a:hover { color: var(--secondary); }
