@@ -82,13 +82,18 @@ section {
   white-space: pre-line;
 }
 
-/* ---------- My Face: corkboard ---------- */
-.corkboard {
-  /* Make the board wider than the 700px text column */
+/* ---------- Wide sections (break out of the 700px column) ---------- */
+.corkboard,
+.mixtape-area {
   width: min(1100px, 95vw);
-  margin: 2.5rem 0;
   margin-left: 50%;
   transform: translateX(-50%);
+}
+
+/* ---------- My Face: corkboard ---------- */
+.corkboard {
+  margin-top: 2.5rem;
+  margin-bottom: 4rem;
 
   /* Cork texture: tan base with two layers of tiny speckles */
   background-color: #c9a27b;
@@ -105,37 +110,46 @@ section {
     0 25px 50px rgba(0, 0, 0, 0.35),
     inset 0 0 30px rgba(0, 0, 0, 0.25);
 
-  /* Arrange the notes */
-  padding: 3rem 2rem;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 2.5rem;
-  min-height: 450px;
+  /* Free placement: notes are positioned anywhere inside the board */
+  position: relative;
+  height: 650px;
+  overflow: hidden;   /* nothing hangs off the edge */
 }
 
-/* Everything pinned to the board */
+/* Anything on the board sits at its own x/y spot and tilt.
+   Each note sets these in its HTML: style="--x: 10%; --y: 20%; --tilt: -3deg" */
 .corkboard > * {
+  position: absolute;
+  left: var(--x, 5%);
+  top: var(--y, 5%);
+  rotate: var(--tilt, -2deg);
+}
+
+/* The "why" notes around the mixtape just stack in their columns */
+.why-notes > * {
   position: relative;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
   rotate: -2deg;
+}
+.why-notes > *:nth-child(2n) { rotate: 3deg; }
+
+/* Shared look for everything pinned up */
+.corkboard > *,
+.why-notes > * {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   transition: rotate 0.2s, scale 0.2s;
 }
 
-/* Vary the tilt so it looks hand-pinned */
-.corkboard > *:nth-child(2n) { rotate: 3deg; }
-.corkboard > *:nth-child(3n) { rotate: -4deg; }
-
-/* Straighten and lift a note when you hover over it */
-.corkboard > *:hover {
+/* Straighten, lift and bring a note to the front when you hover */
+.corkboard > *:hover,
+.why-notes > *:hover {
   rotate: 0deg;
-  scale: 1.05;
-  z-index: 2;
+  scale: 1.08;
+  z-index: 100;
 }
 
 /* The pushpin */
-.corkboard > *::before {
+.corkboard > *::before,
+.why-notes > *::before {
   content: "";
   position: absolute;
   top: -8px;
@@ -150,20 +164,21 @@ section {
 
 /* Sticky notes */
 .sticky-note {
-  width: 200px;
-  min-height: 180px;
-  padding: 1.5rem 1.25rem 1rem;
+  width: 150px;
+  min-height: 130px;
+  padding: 1.1rem 0.9rem 0.7rem;
   font-family: "Bradley Hand", "Segoe Print", cursive;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
   color: var(--neutral-dark);
 }
 
-.sticky-note p { margin-top: 0; }
+.sticky-note p { margin: 0 0 0.5rem; }
 
 .signature {
   display: block;
   text-align: right;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
 }
 
 /* The three colors visitors can choose from */
@@ -174,9 +189,9 @@ section {
 /* Polaroids */
 .polaroid {
   background: white;
-  width: 220px;
+  width: 160px;
   margin: 0;
-  padding: 12px 12px 16px;
+  padding: 8px 8px 10px;
 }
 
 .polaroid img {
@@ -186,9 +201,430 @@ section {
   display: block;
 }
 
+.polaroid .signature {
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  color: var(--neutral-dark);
+  padding-right: 0.25rem;
+}
+
 .polaroid figcaption {
   font-family: "Bradley Hand", "Segoe Print", cursive;
   text-align: center;
-  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
   color: var(--neutral-dark);
+}
+
+/* ---------- My Face: heading + "Pin something" button ---------- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Chunky cartoon buttons, used all over My Face */
+.cartoon-btn {
+  padding: 0.6rem 1.15rem;
+  background: var(--primary);
+  color: white;
+  border: 2px solid var(--neutral-dark);
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 var(--neutral-dark);
+  font: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  transition: translate 0.1s, box-shadow 0.1s;
+}
+
+.cartoon-btn:hover {
+  translate: -1px -1px;
+  box-shadow: 5px 5px 0 var(--neutral-dark);
+}
+
+.cartoon-btn:active {
+  translate: 3px 3px;
+  box-shadow: 1px 1px 0 var(--neutral-dark);
+}
+
+.cartoon-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  translate: none;
+  box-shadow: 4px 4px 0 var(--neutral-dark);
+}
+
+.btn-coral { background: var(--secondary); color: var(--neutral-dark); }
+.btn-plain { background: white; color: var(--neutral-dark); }
+
+
+/* ---------- My Face: the pop-up ---------- */
+.note-dialog {
+  border: none;
+  padding: 1rem;            /* room for the pin and shadow */
+  background: transparent;
+  max-width: 540px;
+  width: calc(100% - 2rem);
+  overflow: visible;
+}
+
+.note-dialog::backdrop {
+  background: rgba(51, 51, 51, 0.55);
+}
+
+/* The form itself is a pinned, lined index card */
+.note-form {
+  position: relative;
+  padding: 1.6rem 1.5rem 1.25rem 2.75rem;   /* extra left room for the margin line */
+  rotate: -1deg;
+  background-color: #fffdf6;
+  background-image:
+    linear-gradient(90deg, transparent 1.9rem, rgba(255, 127, 80, 0.45) 1.9rem, rgba(255, 127, 80, 0.45) calc(1.9rem + 2px), transparent calc(1.9rem + 2px)),
+    repeating-linear-gradient(transparent 0, transparent 1.6rem, #dce8f0 1.6rem, #dce8f0 calc(1.6rem + 1px));
+  border-radius: 3px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+/* The pushpin holding the card up */
+.note-form::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  border-radius: 50%;
+  background: var(--secondary);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.35);
+}
+
+.close-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--neutral-dark);
+  cursor: pointer;
+}
+
+.close-btn:hover { color: var(--secondary); }
+
+.note-form h3 {
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  font-size: 1.35rem;
+  color: var(--title);
+  margin: 0 0 0.25rem;
+  text-align: center;
+}
+
+.note-form label,
+.color-picker legend {
+  display: block;
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--neutral-dark);
+  margin: 0.6rem 0 0.3rem;
+  padding: 0;
+}
+
+.optional {
+  font-weight: normal;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* Name and color side by side */
+.form-row {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+}
+
+.form-row .field {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* Text boxes: chunky, cartoon-outlined */
+.note-form input[type="text"],
+.note-form textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.7rem;
+  background: white;
+  border: 2px solid var(--neutral-dark);
+  border-radius: 8px;
+  box-shadow: 3px 3px 0 var(--neutral-dark);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--neutral-dark);
+  resize: vertical;
+}
+
+.note-form input[type="text"]:focus,
+.note-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 3px 3px 0 var(--primary);
+}
+
+/* Color choices look like mini sticky notes */
+.color-picker {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.color-picker legend {
+  float: left;          /* keeps the legend above the swatches */
+  width: 100%;
+}
+
+.color-picker label {
+  margin: 0;
+  cursor: pointer;
+  font-size: 0;         /* hide the word, keep it for screen readers... */
+}
+
+.color-picker input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.swatch {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 2px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+  rotate: -4deg;
+  transition: rotate 0.15s, scale 0.15s;
+}
+
+.color-picker label:nth-of-type(2) .swatch { rotate: 3deg; }
+.color-picker label:nth-of-type(3) .swatch { rotate: -2deg; }
+
+.color-picker label:hover .swatch { scale: 1.08; }
+
+.color-picker input:checked + .swatch {
+  rotate: 0deg;
+  scale: 1.12;
+  outline: 3px solid var(--neutral-dark);
+  outline-offset: 2px;
+}
+
+.color-picker input:focus-visible + .swatch {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Photo picker on one line */
+.photo-row {
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.4rem;
+}
+
+.photo-row label { margin: 0; }
+
+.note-form input[type="file"] {
+  font: inherit;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.note-form input[type="file"]::file-selector-button {
+  margin-right: 0.6rem;
+  padding: 0.3rem 0.75rem;
+  background: white;
+  border: 2px solid var(--neutral-dark);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 var(--neutral-dark);
+  font: inherit;
+  font-weight: bold;
+  color: var(--neutral-dark);
+  cursor: pointer;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.form-status {
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  font-weight: bold;
+  text-align: center;
+  color: var(--title);
+  margin: 0.6rem 0 0;
+}
+
+.form-status:empty { display: none; }
+
+
+/* ---------- My Face: the "placing your note" bar ---------- */
+.place-bar {
+  position: sticky;
+  top: 4.5rem;              /* sits just under the sticky nav */
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 1.5rem 0 0;
+  padding: 0.75rem 1rem;
+  background: var(--accent-light);
+  border: 2px solid var(--neutral-dark);
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 var(--neutral-dark);
+}
+
+.place-bar[hidden] { display: none; }
+
+.place-bar p {
+  margin: 0;
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  font-weight: bold;
+}
+
+.place-buttons {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.place-buttons .cartoon-btn {
+  padding: 0.45rem 0.9rem;
+}
+
+/* The note a visitor is placing (before they pin it) */
+.corkboard > .is-preview {
+  outline: 3px dashed var(--primary);
+  outline-offset: 4px;
+  cursor: grab;
+  touch-action: none;   /* lets phones drag instead of scroll */
+  user-select: none;
+  z-index: 200;
+}
+
+.corkboard > .is-dragging {
+  cursor: grabbing;
+  rotate: 0deg;
+  scale: 1.08;
+}
+
+/* ---------- My Face: the mixtape ---------- */
+.mixtape-area {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;   /* notes | playlist | notes */
+  gap: 2.5rem;
+  align-items: start;
+}
+
+/* The playlist card in the middle */
+.mixtape {
+  background: white;
+  border-top: 6px solid var(--primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.mixtape h3 {
+  color: var(--title);
+  margin-top: 0;
+}
+
+.mixtape h4 {
+  color: var(--title);
+  margin-bottom: 0.5rem;
+}
+
+.mixtape iframe {
+  border-radius: 12px;
+  border: none;
+}
+
+/* The running list of every shared song */
+.mixtape-index {
+  padding-left: 1.5rem;
+  margin: 0;
+}
+
+.mixtape-index li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--neutral-light);
+}
+
+.mixtape-index .song {
+  font-weight: bold;
+}
+
+.mixtape-index .added-by {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--accent-muted);
+}
+
+/* The columns of "why" notes on either side */
+.why-notes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  padding-top: 2rem;
+}
+
+.why-note {
+  width: 100%;
+  max-width: 170px;
+  min-height: 130px;
+}
+
+/* Small label at the top of a "why" note naming the song */
+.why-song {
+  display: block;
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+/* On narrow screens (phones), stack everything in one column */
+@media (max-width: 800px) {
+  .mixtape-area {
+    grid-template-columns: 1fr;
+  }
+
+  .why-notes {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .why-notes:first-child {
+    order: 2;   /* move the left notes below the playlist */
+  }
+
+  .mixtape {
+    order: 1;
+  }
+
+  .why-notes:last-child {
+    order: 3;
+  }
 }

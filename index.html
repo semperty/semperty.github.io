@@ -14,9 +14,9 @@
 
     <nav>
         <ul>
-            <li><a href="#now">On my mind</a></li>
-            <li><a href="#myface">My Face</a></li>
+            <li><a href="#now">Now</a></li>
             <li><a href="#cabinet">Curiosity Cabinet</a></li>
+            <li><a href="#myface">My Face</a></li>
         </ul>
     </nav>
 
@@ -29,40 +29,148 @@
 
             <article class="now-entry">
                 <time datetime="2026-11-13">November 13, 2026</time>
-                <p>gonna make the internet what i want it to be</p>
+                <p>Building this site from scratch and learning HTML and CSS as I go.</p>
             </article>
         </section>
 
         <!-- ========== MY FACE ========== -->
         <section id="myface">
-            <h2>My Face</h2>
+            <!-- Heading with the "pin something" button next to it -->
+            <div class="section-header">
+                <h2>My Face</h2>
+                <button type="button" id="open-form-btn" class="cartoon-btn">📌 Pin something</button>
+            </div>
             <p>Leave a note, a picture, or a song.</p>
 
+            <!-- ---------- The pop-up form ---------- -->
+            <dialog id="note-dialog" class="note-dialog">
+                <form id="note-form" class="note-form">
+                    <button type="button" id="close-form-btn" class="close-btn" aria-label="Close">×</button>
+                    <h3>Pin something to the board</h3>
+
+                    <div class="form-row">
+                        <div class="field">
+                            <label for="note-name">Your name</label>
+                            <input type="text" id="note-name" maxlength="40" placeholder="So I know who it's from">
+                        </div>
+
+                        <fieldset class="color-picker">
+                            <legend>Color</legend>
+                            <label><input type="radio" name="color" value="purple" checked><span class="swatch note-purple"></span>Purple</label>
+                            <label><input type="radio" name="color" value="teal"><span class="swatch note-teal"></span>Teal</label>
+                            <label><input type="radio" name="color" value="coral"><span class="swatch note-coral"></span>Coral</label>
+                        </fieldset>
+                    </div>
+
+                    <label for="note-text">Your note</label>
+                    <textarea id="note-text" maxlength="280" rows="2" placeholder="Say hi, share a memory, roast me..."></textarea>
+
+                    <div class="form-row photo-row">
+                        <label for="note-photo">Photo <span class="optional">(optional, makes it a polaroid)</span></label>
+                        <input type="file" id="note-photo" accept="image/*">
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="submit" id="place-btn" class="cartoon-btn">Place it on the board →</button>
+                    </div>
+
+                    <p id="form-status" class="form-status" role="status"></p>
+                </form>
+            </dialog>
+
+            <!-- ---------- Shows while someone is placing their note ---------- -->
+            <div id="place-bar" class="place-bar" hidden>
+                <p id="place-status" role="status"></p>
+                <div class="place-buttons">
+                    <button type="button" id="cancel-btn" class="cartoon-btn btn-plain">Cancel</button>
+                    <button type="button" id="edit-btn" class="cartoon-btn btn-plain">Edit</button>
+                    <button type="button" id="pin-btn" class="cartoon-btn btn-coral">📌 Pin it!</button>
+                </div>
+            </div>
+
+            <!-- Each note's spot: --x = from the left, --y = from the top, --tilt = angle -->
             <div class="corkboard">
 
-                <div class="sticky-note note-purple">
+                <div class="sticky-note note-purple" style="--x: 6%; --y: 8%; --tilt: -3deg">
                     <p>This site is so cozy. Can't wait to see the mixtape grow!</p>
                     <span class="signature">— Gabby</span>
                 </div>
 
-                <figure class="polaroid">
-                    <img src="images/IMG_8897.JPG" alt="Wedding">
+                <figure class="polaroid" style="--x: 24%; --y: 14%; --tilt: 4deg">
+                    <img src="images/IMG_8897.JPG" alt="Describe your photo">
                     <figcaption>throwback to the best day</figcaption>
                 </figure>
 
-                <div class="sticky-note note-coral">
+                <div class="sticky-note note-coral" style="--x: 47%; --y: 6%; --tilt: 2deg">
                     <p>Go listen to the new song I added. Trust me.</p>
                     <span class="signature">— Jordan</span>
                 </div>
 
-                <div class="sticky-note note-teal">
+                <div class="sticky-note note-teal" style="--x: 72%; --y: 22%; --tilt: -5deg">
                     <p>Say what you will about Jon Gruden...</p>
                     <span class="signature">— Hunter</span>
                 </div>
 
-                <div class="sticky-note note-purple">
+                <div class="sticky-note note-purple" style="--x: 55%; --y: 52%; --tilt: 3deg">
                     <p>Hi from the other side of the internet 👋</p>
                     <span class="signature">— Mom</span>
+                </div>
+
+            </div>
+
+            <!-- ---------- The Mixtape ---------- -->
+            <div class="mixtape-area">
+
+                <!-- "Why" notes on the left -->
+                <div class="why-notes">
+                    <div class="sticky-note why-note note-teal">
+                        <span class="why-song">Dreams</span>
+                        <p>Windows down, first warm day of the year.</p>
+                        <span class="signature">— Gabby</span>
+                    </div>
+                    <div class="sticky-note why-note note-coral">
+                        <span class="why-song">Electric Feel</span>
+                        <p>Impossible not to dance to this one.</p>
+                        <span class="signature">— Jordan</span>
+                    </div>
+                </div>
+
+                <!-- The playlist itself -->
+                <div class="mixtape">
+                    <h3>The Mixtape</h3>
+
+                    <!-- Replace PASTE_PLAYLIST_ID_HERE with your playlist's ID (see instructions) -->
+                    <iframe
+                        src="https://open.spotify.com/embed/playlist/PASTE_PLAYLIST_ID_HERE"
+                        width="100%"
+                        height="352"
+                        frameborder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        title="The Mixtape on Spotify">
+                    </iframe>
+
+                    <h4>Mixtape Index</h4>
+                    <ol class="mixtape-index">
+                        <li><span class="song">Dreams</span> — Fleetwood Mac <span class="added-by">via Gabby</span></li>
+                        <li><span class="song">Electric Feel</span> — MGMT <span class="added-by">via Jordan</span></li>
+                        <li><span class="song">Holocene</span> — Bon Iver <span class="added-by">via Hunter</span></li>
+                        <li><span class="song">Pink + White</span> — Frank Ocean <span class="added-by">via Mom</span></li>
+                    </ol>
+                </div>
+
+                <!-- "Why" notes on the right -->
+                <div class="why-notes">
+                    <div class="sticky-note why-note note-purple">
+                        <span class="why-song">Holocene</span>
+                        <p>Reminds me of driving home in the snow.</p>
+                        <span class="signature">— Hunter</span>
+                    </div>
+                    <div class="sticky-note why-note note-teal">
+                        <span class="why-song">Pink + White</span>
+                        <p>You played this the whole summer, so now it's yours.</p>
+                        <span class="signature">— Mom</span>
+                    </div>
                 </div>
 
             </div>
@@ -75,6 +183,9 @@
         </section>
 
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="myface.js"></script>
 
 </body>
 </html>
