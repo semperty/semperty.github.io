@@ -32,6 +32,10 @@ a:hover { color: var(--secondary); }
 
 /* ---------- Navbar ---------- */
 nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   background: var(--primary);
   padding: 0.75rem 1.25rem;
   border-radius: 8px;
@@ -339,6 +343,34 @@ section {
   color: #888;
 }
 
+/* Anything hidden in the form stays hidden, even if it's a flex row */
+.note-form [hidden] { display: none !important; }
+
+/* Note / Song tabs */
+.mode-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0 0.25rem;
+}
+
+.mode-tab {
+  padding: 0.3rem 0.9rem;
+  background: white;
+  color: var(--neutral-dark);
+  border: 2px solid var(--neutral-dark);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mode-tab.is-active {
+  background: var(--accent-light);
+  box-shadow: 2px 2px 0 var(--neutral-dark);
+}
+
 /* Name and color side by side */
 .form-row {
   display: flex;
@@ -557,6 +589,215 @@ section {
   border: none;
 }
 
+/* ---------- The cassette (play button) ---------- */
+.cassette {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1.6;
+  margin: 0.5rem auto 1.25rem;
+  padding: 0;
+  background: var(--primary);
+  border: 3px solid var(--neutral-dark);
+  border-radius: 18px;
+  box-shadow: 6px 6px 0 var(--neutral-dark);
+  cursor: pointer;
+  font: inherit;
+  transition: translate 0.1s, box-shadow 0.1s;
+}
+
+.cassette:hover {
+  translate: -1px -1px;
+  box-shadow: 7px 7px 0 var(--neutral-dark);
+}
+
+.cassette:active {
+  translate: 4px 4px;
+  box-shadow: 2px 2px 0 var(--neutral-dark);
+}
+
+.cassette:focus-visible {
+  outline: 3px solid var(--secondary);
+  outline-offset: 4px;
+}
+
+/* The paper label, with coral and teal stripes */
+.cassette-label {
+  position: absolute;
+  top: 7%;
+  left: 6%;
+  right: 6%;
+  height: 62%;
+  background:
+    linear-gradient(to bottom,
+      transparent 0 74%,
+      var(--secondary) 74% 81%,
+      var(--accent-light) 81% 88%,
+      transparent 88%),
+    #fffdf6;
+  border: 2px solid var(--neutral-dark);
+  border-radius: 8px;
+}
+
+.cassette-title {
+  position: absolute;
+  top: 6%;
+  left: 5%;
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  font-size: clamp(0.95rem, 3.2vw, 1.3rem);
+  font-weight: bold;
+  color: var(--title);
+}
+
+.cassette-side {
+  position: absolute;
+  top: 9%;
+  right: 16%;
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+/* Little play/pause circle on the label */
+.cassette-icon {
+  position: absolute;
+  top: 5%;
+  right: 3%;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--secondary);
+  border: 2px solid var(--neutral-dark);
+  color: var(--neutral-dark);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+/* The see-through window with the two reels */
+.cassette-window {
+  position: absolute;
+  top: 31%;
+  left: 20%;
+  right: 20%;
+  height: 25%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7%;
+  background: linear-gradient(#3a3a3a, #2a2a2a);
+  border: 2px solid var(--neutral-dark);
+  border-radius: 40px;
+}
+
+.reel {
+  width: 26%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid #fffdf6;
+  background:
+    radial-gradient(circle, #2a2a2a 0 22%, transparent 23%),
+    repeating-conic-gradient(#fffdf6 0deg 20deg, var(--mauve) 20deg 60deg);
+  animation: spin 1.8s linear infinite;
+  animation-play-state: paused;     /* only spin while playing */
+}
+
+.cassette.is-playing .reel {
+  animation-play-state: running;
+}
+
+@keyframes spin {
+  to { rotate: 360deg; }
+}
+
+/* The trapezoid at the bottom edge of the tape */
+.cassette-bottom {
+  position: absolute;
+  bottom: -3px;
+  left: 18%;
+  right: 18%;
+  height: 20%;
+  background:
+    radial-gradient(circle at 25% 55%, var(--neutral-dark) 0 7%, transparent 8%),
+    radial-gradient(circle at 75% 55%, var(--neutral-dark) 0 7%, transparent 8%),
+    var(--title);
+  border: 2px solid var(--neutral-dark);
+  border-bottom: none;
+  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+}
+
+/* The small cassette that lives in the navbar */
+.cassette-mini {
+  width: 66px;
+  max-width: none;
+  margin: 0;
+  flex-shrink: 0;
+  background: var(--secondary);          /* coral, so it stands out on the purple bar */
+  border-width: 2px;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0 var(--neutral-dark);
+}
+
+.cassette-mini:hover {
+  box-shadow: 4px 4px 0 var(--neutral-dark);
+}
+
+.cassette-mini:active {
+  translate: 2px 2px;
+  box-shadow: 1px 1px 0 var(--neutral-dark);
+}
+
+.cassette-mini .cassette-label {
+  border-width: 1.5px;
+  border-radius: 4px;
+}
+
+.cassette-mini .cassette-window {
+  border-width: 1.5px;
+  padding: 0 6%;
+}
+
+.cassette-mini .reel {
+  border-width: 1.5px;
+}
+
+.cassette-mini .cassette-bottom {
+  border-width: 1.5px;
+  bottom: -2px;
+}
+
+/* A tiny play/pause badge on the corner of the tape */
+.cassette-mini .cassette-icon {
+  top: -9px;
+  right: -12px;
+  width: 1.15rem;
+  height: 1.15rem;
+  font-size: 0.5rem;
+  background: var(--accent-light);
+  border-width: 1.5px;
+}
+
+/* Respect people who turn off animations */
+@media (prefers-reduced-motion: reduce) {
+  .reel { animation: none; }
+}
+
+.spotify-note {
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+  margin: 0.75rem 0 1rem;
+}
+
+#spotify-embed,
+.mixtape iframe {
+  border-radius: 12px;
+}
+
 /* The running list of every shared song */
 .mixtape-index {
   padding-left: 1.5rem;
@@ -570,12 +811,36 @@ section {
 
 .mixtape-index .song {
   font-weight: bold;
+  color: var(--neutral-dark);
+  text-decoration: none;
+}
+
+.mixtape-index a.song:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.mixtape-index .mixtape-loading {
+  list-style: none;
+  margin-left: -1.5rem;
+  color: #888;
+  font-style: italic;
 }
 
 .mixtape-index .added-by {
   display: block;
   font-size: 0.85rem;
   color: var(--accent-muted);
+}
+
+/* "Add a song" button under the index */
+.mixtape-actions {
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+.mixtape-actions .form-status {
+  margin-top: 0.75rem;
 }
 
 /* The columns of "why" notes on either side */

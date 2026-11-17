@@ -15,9 +15,21 @@
     <nav>
         <ul>
             <li><a href="#now">Now</a></li>
-            <li><a href="#cabinet">Curiosity Cabinet</a></li>
             <li><a href="#myface">My Face</a></li>
+            <li><a href="#cabinet">Curiosity Cabinet</a></li>
         </ul>
+
+        <!-- The cassette: press it to play or pause the mixtape -->
+        <button type="button" id="cassette" class="cassette cassette-mini" aria-label="Play the mixtape" aria-pressed="false" title="Play the mixtape">
+            <span class="cassette-label">
+                <span id="cassette-icon" class="cassette-icon" aria-hidden="true">▶</span>
+            </span>
+            <span class="cassette-window" aria-hidden="true">
+                <span class="reel"></span>
+                <span class="reel"></span>
+            </span>
+            <span class="cassette-bottom" aria-hidden="true"></span>
+        </button>
     </nav>
 
     <main>
@@ -29,7 +41,7 @@
 
             <article class="now-entry">
                 <time datetime="2026-11-13">November 13, 2026</time>
-                <p>Building this site from scratch and learning HTML and CSS as I go.</p>
+                <p>building my own little corner of the internet</p>
             </article>
         </section>
 
@@ -46,7 +58,13 @@
             <dialog id="note-dialog" class="note-dialog">
                 <form id="note-form" class="note-form">
                     <button type="button" id="close-form-btn" class="close-btn" aria-label="Close">×</button>
-                    <h3>Pin something to the board</h3>
+                    <h3 id="form-title">Pin something to the board</h3>
+
+                    <!-- Note or Song -->
+                    <div class="mode-tabs" role="tablist">
+                        <button type="button" class="mode-tab is-active" data-mode="note" role="tab" aria-selected="true">📝 Note</button>
+                        <button type="button" class="mode-tab" data-mode="song" role="tab" aria-selected="false">🎵 Song</button>
+                    </div>
 
                     <div class="form-row">
                         <div class="field">
@@ -62,10 +80,22 @@
                         </fieldset>
                     </div>
 
-                    <label for="note-text">Your note</label>
+                    <!-- Only shown on the Song tab -->
+                    <div class="form-row song-fields" hidden>
+                        <div class="field">
+                            <label for="song-title">Song</label>
+                            <input type="text" id="song-title" maxlength="100" placeholder="Song title">
+                        </div>
+                        <div class="field">
+                            <label for="song-artist">Artist</label>
+                            <input type="text" id="song-artist" maxlength="100" placeholder="Who sings it?">
+                        </div>
+                    </div>
+
+                    <label for="note-text" id="note-label">Your note</label>
                     <textarea id="note-text" maxlength="280" rows="2" placeholder="Say hi, share a memory, roast me..."></textarea>
 
-                    <div class="form-row photo-row">
+                    <div class="form-row photo-row note-only">
                         <label for="note-photo">Photo <span class="optional">(optional, makes it a polaroid)</span></label>
                         <input type="file" id="note-photo" accept="image/*">
                     </div>
@@ -92,8 +122,8 @@
             <div class="corkboard">
 
                 <div class="sticky-note note-purple" style="--x: 6%; --y: 8%; --tilt: -3deg">
-                    <p>This site is so cozy. Can't wait to see the mixtape grow!</p>
-                    <span class="signature">— Gabby</span>
+                    <p>please feel free to add your own notes and pictures!</p>
+                    <span class="signature"></span>
                 </div>
 
                 <figure class="polaroid" style="--x: 24%; --y: 14%; --tilt: 4deg">
@@ -102,18 +132,8 @@
                 </figure>
 
                 <div class="sticky-note note-coral" style="--x: 47%; --y: 6%; --tilt: 2deg">
-                    <p>Go listen to the new song I added. Trust me.</p>
-                    <span class="signature">— Jordan</span>
-                </div>
-
-                <div class="sticky-note note-teal" style="--x: 72%; --y: 22%; --tilt: -5deg">
-                    <p>Say what you will about Jon Gruden...</p>
-                    <span class="signature">— Hunter</span>
-                </div>
-
-                <div class="sticky-note note-purple" style="--x: 55%; --y: 52%; --tilt: 3deg">
-                    <p>Hi from the other side of the internet 👋</p>
-                    <span class="signature">— Mom</span>
+                    <p>drop a note, an update, a meme, a joke - whatever you want! :)</p>
+                    <span class="signature"></span>
                 </div>
 
             </div>
@@ -121,62 +141,41 @@
             <!-- ---------- The Mixtape ---------- -->
             <div class="mixtape-area">
 
-                <!-- "Why" notes on the left -->
-                <div class="why-notes">
-                    <div class="sticky-note why-note note-teal">
-                        <span class="why-song">Dreams</span>
-                        <p>Windows down, first warm day of the year.</p>
-                        <span class="signature">— Gabby</span>
-                    </div>
-                    <div class="sticky-note why-note note-coral">
-                        <span class="why-song">Electric Feel</span>
-                        <p>Impossible not to dance to this one.</p>
-                        <span class="signature">— Jordan</span>
-                    </div>
-                </div>
+                <!-- "Why" notes on the left (filled in by myface.js) -->
+                <div id="why-left" class="why-notes"></div>
 
                 <!-- The playlist itself -->
                 <div class="mixtape">
                     <h3>The Mixtape</h3>
 
-                    <!-- Replace PASTE_PLAYLIST_ID_HERE with your playlist's ID (see instructions) -->
-                    <iframe
-                        src="https://open.spotify.com/embed/playlist/PASTE_PLAYLIST_ID_HERE"
-                        width="100%"
-                        height="352"
-                        frameborder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                        title="The Mixtape on Spotify">
-                    </iframe>
+                    <!-- Spotify's own player (the "tape deck"). myface.js puts it here. -->
+                    <div id="spotify-embed"></div>
+
+                    <p class="spotify-note">
+                        🎧 Log in to <a href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a>
+                        in this browser to hear full songs. Otherwise you'll hear 30-second previews,
+                        or you can <a href="https://open.spotify.com/playlist/7zKcvxlWwbhThio6C5ZrXa" target="_blank" rel="noopener">open the playlist in Spotify</a>.
+                    </p>
 
                     <h4>Mixtape Index</h4>
-                    <ol class="mixtape-index">
-                        <li><span class="song">Dreams</span> — Fleetwood Mac <span class="added-by">via Gabby</span></li>
-                        <li><span class="song">Electric Feel</span> — MGMT <span class="added-by">via Jordan</span></li>
-                        <li><span class="song">Holocene</span> — Bon Iver <span class="added-by">via Hunter</span></li>
-                        <li><span class="song">Pink + White</span> — Frank Ocean <span class="added-by">via Mom</span></li>
+                    <!-- Filled in from the real playlist by myface.js -->
+                    <ol id="mixtape-index" class="mixtape-index">
+                        <li class="mixtape-loading">Loading the mixtape…</li>
                     </ol>
+
+                    <div class="mixtape-actions">
+                        <button type="button" id="add-song-btn" class="cartoon-btn btn-coral">🎵 Add a song</button>
+                        <p id="mixtape-status" class="form-status" role="status"></p>
+                    </div>
                 </div>
 
-                <!-- "Why" notes on the right -->
-                <div class="why-notes">
-                    <div class="sticky-note why-note note-purple">
-                        <span class="why-song">Holocene</span>
-                        <p>Reminds me of driving home in the snow.</p>
-                        <span class="signature">— Hunter</span>
-                    </div>
-                    <div class="sticky-note why-note note-teal">
-                        <span class="why-song">Pink + White</span>
-                        <p>You played this the whole summer, so now it's yours.</p>
-                        <span class="signature">— Mom</span>
-                    </div>
-                </div>
+                <!-- "Why" notes on the right (filled in by myface.js) -->
+                <div id="why-right" class="why-notes"></div>
 
             </div>
         </section>
 
-                <!-- ========== CURIOSITY CABINET ========== -->
+        <!-- ========== CURIOSITY CABINET ========== -->
         <section id="cabinet">
             <h2>The Curiosity Cabinet</h2>
             <p>Coming soon: a messy archive of things I find interesting.</p>
@@ -186,6 +185,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="myface.js"></script>
+    <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 
 </body>
 </html>
