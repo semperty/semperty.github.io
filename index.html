@@ -9,14 +9,14 @@
 <body>
 
     <header>
-        <h1>Welcome to My Corner</h1>
+        <h1>welcome to my corner</h1>
     </header>
 
     <nav>
         <ul>
-            <li><a href="#now">Now</a></li>
-            <li><a href="#myface">My Face</a></li>
-            <li><a href="#cabinet">Curiosity Cabinet</a></li>
+            <li><a href="#now">life updates</a></li>
+            <li><a href="#myface">my face</a></li>
+            <li><a href="#cabinet">curiosity cabinet</a></li>
         </ul>
 
         <!-- The cassette: press it to play or pause the mixtape -->
@@ -36,29 +36,29 @@
 
         <!-- ========== NOW ========== -->
         <section id="now">
-            <h2>Now</h2>
+            <h2>life updates</h2>
             <p>What I'm focused on these days. No likes, no comments, just an update.</p>
 
-            <article class="now-entry">
-                <time datetime="2026-11-13">November 13, 2026</time>
-                <p>building my own little corner of the internet</p>
-            </article>
+            <!-- Filled in from your Google Form by now.js -->
+            <div id="now-feed">
+                <p>loading...</p>
+            </div>
         </section>
 
         <!-- ========== MY FACE ========== -->
         <section id="myface">
             <!-- Heading with the "pin something" button next to it -->
             <div class="section-header">
-                <h2>My Face</h2>
+                <h2>my face</h2>
                 <button type="button" id="open-form-btn" class="cartoon-btn">📌 Pin something</button>
             </div>
-            <p>Leave a note, a picture, or a song.</p>
+            <p>leave a note, a picture, or a song.</p>
 
             <!-- ---------- The pop-up form ---------- -->
             <dialog id="note-dialog" class="note-dialog">
                 <form id="note-form" class="note-form">
                     <button type="button" id="close-form-btn" class="close-btn" aria-label="Close">×</button>
-                    <h3 id="form-title">Pin something to the board</h3>
+                    <h3 id="form-title">pin something to the board</h3>
 
                     <!-- Note or Song -->
                     <div class="mode-tabs" role="tablist">
@@ -68,12 +68,12 @@
 
                     <div class="form-row">
                         <div class="field">
-                            <label for="note-name">Your name</label>
+                            <label for="note-name">your name</label>
                             <input type="text" id="note-name" maxlength="40" placeholder="So I know who it's from">
                         </div>
 
                         <fieldset class="color-picker">
-                            <legend>Color</legend>
+                            <legend>color</legend>
                             <label><input type="radio" name="color" value="purple" checked><span class="swatch note-purple"></span>Purple</label>
                             <label><input type="radio" name="color" value="teal"><span class="swatch note-teal"></span>Teal</label>
                             <label><input type="radio" name="color" value="coral"><span class="swatch note-coral"></span>Coral</label>
@@ -83,25 +83,25 @@
                     <!-- Only shown on the Song tab -->
                     <div class="form-row song-fields" hidden>
                         <div class="field">
-                            <label for="song-title">Song</label>
+                            <label for="song-title">song</label>
                             <input type="text" id="song-title" maxlength="100" placeholder="Song title">
                         </div>
                         <div class="field">
-                            <label for="song-artist">Artist</label>
+                            <label for="song-artist">artist</label>
                             <input type="text" id="song-artist" maxlength="100" placeholder="Who sings it?">
                         </div>
                     </div>
 
-                    <label for="note-text" id="note-label">Your note</label>
+                    <label for="note-text" id="note-label">your note</label>
                     <textarea id="note-text" maxlength="280" rows="2" placeholder="Say hi, share a memory, roast me..."></textarea>
 
                     <div class="form-row photo-row note-only">
-                        <label for="note-photo">Photo <span class="optional">(optional, makes it a polaroid)</span></label>
+                        <label for="note-photo">photo <span class="optional">(optional, makes it a polaroid)</span></label>
                         <input type="file" id="note-photo" accept="image/*">
                     </div>
 
                     <div class="form-buttons">
-                        <button type="submit" id="place-btn" class="cartoon-btn">Place it on the board →</button>
+                        <button type="submit" id="place-btn" class="cartoon-btn">place it on the board →</button>
                     </div>
 
                     <p id="form-status" class="form-status" role="status"></p>
@@ -112,9 +112,9 @@
             <div id="place-bar" class="place-bar" hidden>
                 <p id="place-status" role="status"></p>
                 <div class="place-buttons">
-                    <button type="button" id="cancel-btn" class="cartoon-btn btn-plain">Cancel</button>
-                    <button type="button" id="edit-btn" class="cartoon-btn btn-plain">Edit</button>
-                    <button type="button" id="pin-btn" class="cartoon-btn btn-coral">📌 Pin it!</button>
+                    <button type="button" id="cancel-btn" class="cartoon-btn btn-plain">cancel</button>
+                    <button type="button" id="edit-btn" class="cartoon-btn btn-plain">edit</button>
+                    <button type="button" id="pin-btn" class="cartoon-btn btn-coral">📌 pin it!</button>
                 </div>
             </div>
 
@@ -123,7 +123,6 @@
 
                 <div class="sticky-note note-purple" style="--x: 6%; --y: 8%; --tilt: -3deg">
                     <p>please feel free to add your own notes and pictures!</p>
-                    <span class="signature"></span>
                 </div>
 
                 <figure class="polaroid" style="--x: 24%; --y: 14%; --tilt: 4deg">
@@ -133,7 +132,6 @@
 
                 <div class="sticky-note note-coral" style="--x: 47%; --y: 6%; --tilt: 2deg">
                     <p>drop a note, an update, a meme, a joke - whatever you want! :)</p>
-                    <span class="signature"></span>
                 </div>
 
             </div>
@@ -183,6 +181,8 @@
 
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="now.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="myface.js"></script>
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
