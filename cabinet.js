@@ -7,14 +7,23 @@ const CABINET_URL = "https://tkkzlsuixkkbsulrdwci.supabase.co/functions/v1/cabin
 
 // Your drawers, in the order they appear, with a little icon and blurb.
 // A drawer name you add later in your Form shows up automatically (with a 🗄️).
+// blurb = the short line on the drawer's label
+// about = the fuller description that pops up when you hover over the drawer
 const DRAWERS = [
-  { name: "curious & curious-er", icon: "🔍", blurb: "fun facts, history, unexpected science" },
-  { name: "rabbit hole",          icon: "🕳️", blurb: "links worth clicking" },
-  { name: "giggle drawer",        icon: "😂", blurb: "memes, jokes & silliness" },
-  { name: "a note from me",       icon: "💌", blurb: "exactly what it sounds like" },
-  { name: "eye candy",            icon: "🌸", blurb: "pretty things" },
-  { name: "time capsule",         icon: "📼", blurb: "nostalgia & internet history" },
-  { name: "thinking corner",      icon: "💭", blurb: "ideas that make you stop & think" }
+  { name: "curious & curious-er", icon: "🔍", blurb: "fun facts, history, unexpected science",
+    about: "fun facts, stories from history, and science that doesn't seem like it should be real" },
+  { name: "rabbit hole",          icon: "🕳️", blurb: "links worth clicking",
+    about: "articles, wiki entries and youtube videos worth losing an hour to" },
+  { name: "giggle drawer",        icon: "😂", blurb: "memes, jokes & silliness",
+    about: "memes, jokes and general silliness" },
+  { name: "a note from me",       icon: "💌", blurb: "exactly what it sounds like",
+    about: "a little something i wrote, for whoever opens it" },
+  { name: "eye candy",            icon: "🌸", blurb: "pretty things",
+    about: "pretty things: art, nature, photos and poems" },
+  { name: "time capsule",         icon: "📼", blurb: "nostalgia & internet history",
+    about: "nostalgia, internet history and forgotten trends" },
+  { name: "thinking corner",      icon: "💭", blurb: "ideas that make you stop & think",
+    about: "interesting perspectives, challenging ideas and perspective shifts" }
 ];
 
 const exhibitBox = document.getElementById("exhibit");
@@ -106,6 +115,14 @@ function showDrawers(counts) {
 
     plate.append(title, blurb);
     drawer.append(plate, knob);
+
+    // The pop-up description (shows on hover; see .drawer-about in style.css)
+    if (meta.about) {
+      const about = document.createElement("span");
+      about.className = "drawer-about";
+      about.textContent = meta.about;
+      drawer.append(about);
+    }
     drawer.addEventListener("click", () => openDrawer(name, drawer));
     drawersBox.append(drawer);
   });
@@ -245,7 +262,7 @@ function collectorSignup() {
 
   const input = document.createElement("input");
   input.type = "text";
-  input.placeholder = "pick a username, make it unique :)";
+  input.placeholder = "pick a code, like night-owl";
   input.maxLength = 20;
   input.autocapitalize = "off";
   input.spellcheck = false;

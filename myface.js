@@ -663,52 +663,46 @@ function handlePlayerUpdate(state) {
   repeatAtTheEnd(state);
 }
 
-// Repeat: when the last song on the playlist finishes, start again from the top.
-// Spotify's player has no repeat setting and doesn't always report the very end,
-// so while the last song plays we work out when it should finish, then check
-// a few seconds after that: if the music has stopped, play from the top.
-let tapeEndsAt = 0;          // when the last song should finish (ms clock), 0 = not on the last song
-let tapeTimer = null;
-let latest = null;           // the player's most recent report
+// Repeat: when the playlist runs out, start again from the top.
+// Spotify's player has no repeat setting, and it only tells us "the playlist" is
+// playing (not which song). But it does tell us each song's length and position:
+// - a song ending mid-playlist: the next song starts right away
+// - the end of the playlist: the music stops right when a song should be ending
+// - someone pressing pause: the music stops partway through a song
+let songEndsAt = 0;      // when the current song should finish (ms clock), 0 = not playing
+let restartTimer = null;
 let lastLogged = "";
 
 function repeatAtTheEnd(state) {
-  latest = { ...state, at: Date.now() };
-
-  // A short log in the console (Cmd + Option + J) whenever the song or play/pause changes
-  const summary = (state.playingURI || "?") + (state.isPaused ? " paused" : " playing");
+  // A short log in the console (Cmd + Option + J) when a song starts or play/pause changes
+  const summary = (state.isPaused ? "paused" : "playing") + " a " + Math.round(state.duration / 1000) + "s song";
   if (summary !== lastLogged) {
     lastLogged = summary;
-    console.log("mixtape player:", summary, Math.round(state.position / 1000) + "s of " + Math.round(state.duration / 1000) + "s");
+    console.log("mixtape player:", summary, "at " + Math.round(state.position / 1000) + "s");
   }
 
-  if (!playlistSongs || playlistSongs.length === 0) return;
-  const lastUri = playlistSongs[playlistSongs.length - 1].uri;
-  const onLastSong = state.playingURI === lastUri;
-
-  if (onLastSong && !state.isPaused && state.duration > 0) {
-    // Playing the last song: (re)plan the check for just after it ends
-    tapeEndsAt = Date.now() + (state.duration - state.position);
-    clearTimeout(tapeTimer);
-    tapeTimer = setTimeout(checkTapeEnded, state.duration - state.position + 3000);
-  } else if (onLastSong && state.isPaused && Date.now() < tapeEndsAt - 3000) {
-    // Someone paused partway through the last song: don't restart
-    tapeEndsAt = 0;
-    clearTimeout(tapeTimer);
-  } else if (!onLastSong && !state.isPaused) {
-    // Something else is playing (skipped back, or a new song got added): nothing to do
-    tapeEndsAt = 0;
-    clearTimeout(tapeTimer);
+  if (!state.isPaused) {
+    // Music is playing: cancel any pending restart and note when this song should end
+    clearTimeout(restartTimer);
+    restartTimer = null;
+    if (state.duration > 0) songEndsAt = Date.now() + (state.duration - state.position);
+    return;
   }
-}
 
-function checkTapeEnded() {
-  if (!tapeEndsAt || !latest) return;
-  const stillPlayingSomething = !latest.isPaused && latest.at > tapeEndsAt - 1000 && latest.playingURI !== playlistSongs[playlistSongs.length - 1].uri;
-  if (stillPlayingSomething) return;
-  tapeEndsAt = 0;
-  console.log("mixtape player: end of the tape, starting over");
-  spotifyPlayer.play();   // play() starts the playlist from the first song
+  // The music stopped. Was it at the end of a song, or did someone press pause?
+  const songWasEnding = songEndsAt > 0 && Date.now() >= songEndsAt - 3000;
+  const sittingAtTheEnd = state.duration > 0 && state.position >= state.duration - 1500;
+  songEndsAt = 0;
+  if (!songWasEnding && !sittingAtTheEnd) return;   // someone pressed pause: leave it
+
+  // Give Spotify a moment in case it's just moving to the next song
+  clearTimeout(restartTimer);
+  restartTimer = setTimeout(() => {
+    restartTimer = null;
+    if (!spotifyPlayer) return;
+    console.log("mixtape player: end of the tape, starting over");
+    spotifyPlayer.play();   // play() starts the playlist from the first song
+  }, 2500);
 }
 
 cassette.addEventListener("click", () => {
@@ -775,7 +769,7 @@ cassette.addEventListener("click", () => {
 // Start
 // =====================================================
 
-console.log("myface.js: version 2026-11-19 (repeat v3)");   // tells you the newest file loaded
+console.log("myface.js: version 2026-11-19 (repeat v4)");   // tells you the newest file loaded
 updateButtons();
 loadBoard();
 loadMixtape();
