@@ -628,33 +628,87 @@ window.onSpotifyIframeApiReady = IFrameAPI => {
 
   IFrameAPI.createController(document.getElementById("spotify-embed"), options, controller => {
     spotifyPlayer = controller;
+    console.log("mixtape player: ready");
 
     // Keep the reels in sync, even when someone uses Spotify's own buttons
-    controller.addListener("playback_update", event => {
-      showPlaying(!event.data.isPaused);
-      repeatAtTheEnd(event.data);
-    });
+    controller.addListener("playback_update", event => handlePlayerUpdate(event.data));
   });
 };
 
+// Backup: also listen to the player's messages directly, in case Spotify's
+// listener stays quiet. (Only messages from Spotify's own player count.)
+let messageTypesSeen = new Set();
+window.addEventListener("message", event => {
+  if (event.origin !== "https://open.spotify.com") return;
+  let message = event.data;
+  if (typeof message === "string") { try { message = JSON.parse(message); } catch { return; } }
+  if (!message || typeof message !== "object") return;
+
+  const type = message.type || message.command || "?";
+  if (!messageTypesSeen.has(type)) {
+    messageTypesSeen.add(type);
+    console.log("mixtape player: got a '" + type + "' message");
+  }
+  if (type === "playback_update" && message.payload) handlePlayerUpdate(message.payload);
+});
+
+// Both routes land here; skip the duplicate when both deliver the same update
+let lastUpdateKey = "";
+function handlePlayerUpdate(state) {
+  if (!state) return;
+  const key = [state.playingURI, state.isPaused, state.position, state.duration].join("|");
+  if (key === lastUpdateKey) return;
+  lastUpdateKey = key;
+  showPlaying(!state.isPaused);
+  repeatAtTheEnd(state);
+}
+
 // Repeat: when the last song on the playlist finishes, start again from the top.
-// Spotify's player has no repeat setting, so we watch for the final song ending.
-let finalSongNearEnd = false;
+// Spotify's player has no repeat setting and doesn't always report the very end,
+// so while the last song plays we work out when it should finish, then check
+// a few seconds after that: if the music has stopped, play from the top.
+let tapeEndsAt = 0;          // when the last song should finish (ms clock), 0 = not on the last song
+let tapeTimer = null;
+let latest = null;           // the player's most recent report
+let lastLogged = "";
 
 function repeatAtTheEnd(state) {
+  latest = { ...state, at: Date.now() };
+
+  // A short log in the console (Cmd + Option + J) whenever the song or play/pause changes
+  const summary = (state.playingURI || "?") + (state.isPaused ? " paused" : " playing");
+  if (summary !== lastLogged) {
+    lastLogged = summary;
+    console.log("mixtape player:", summary, Math.round(state.position / 1000) + "s of " + Math.round(state.duration / 1000) + "s");
+  }
+
   if (!playlistSongs || playlistSongs.length === 0) return;
   const lastUri = playlistSongs[playlistSongs.length - 1].uri;
   const onLastSong = state.playingURI === lastUri;
-  const nearEnd = state.duration > 0 && state.position >= state.duration - 2000;
 
-  if (onLastSong && !state.isPaused && nearEnd) {
-    finalSongNearEnd = true;            // the last song is in its final couple of seconds
-  } else if (finalSongNearEnd && state.isPaused) {
-    finalSongNearEnd = false;           // ...and then it stopped: that's the end of the tape
-    spotifyPlayer.play();               // play() starts the playlist from the first song
-  } else if (!onLastSong) {
-    finalSongNearEnd = false;
+  if (onLastSong && !state.isPaused && state.duration > 0) {
+    // Playing the last song: (re)plan the check for just after it ends
+    tapeEndsAt = Date.now() + (state.duration - state.position);
+    clearTimeout(tapeTimer);
+    tapeTimer = setTimeout(checkTapeEnded, state.duration - state.position + 3000);
+  } else if (onLastSong && state.isPaused && Date.now() < tapeEndsAt - 3000) {
+    // Someone paused partway through the last song: don't restart
+    tapeEndsAt = 0;
+    clearTimeout(tapeTimer);
+  } else if (!onLastSong && !state.isPaused) {
+    // Something else is playing (skipped back, or a new song got added): nothing to do
+    tapeEndsAt = 0;
+    clearTimeout(tapeTimer);
   }
+}
+
+function checkTapeEnded() {
+  if (!tapeEndsAt || !latest) return;
+  const stillPlayingSomething = !latest.isPaused && latest.at > tapeEndsAt - 1000 && latest.playingURI !== playlistSongs[playlistSongs.length - 1].uri;
+  if (stillPlayingSomething) return;
+  tapeEndsAt = 0;
+  console.log("mixtape player: end of the tape, starting over");
+  spotifyPlayer.play();   // play() starts the playlist from the first song
 }
 
 cassette.addEventListener("click", () => {
@@ -721,6 +775,7 @@ cassette.addEventListener("click", () => {
 // Start
 // =====================================================
 
+console.log("myface.js: version 2026-11-19 (repeat v3)");   // tells you the newest file loaded
 updateButtons();
 loadBoard();
 loadMixtape();
