@@ -26,7 +26,7 @@ fetch(NOW_SHEET_URL)
   })
   .catch(error => {
     console.error("Life updates:", error);
-    nowFeed.textContent = "Couldn't load updates right now.";
+    nowFeed.textContent = "couldn't load updates right now.";
   });
 
 function showPosts(rows) {
@@ -41,7 +41,7 @@ function showPosts(rows) {
   nowFeed.innerHTML = "";
 
   if (posts.length === 0) {
-    nowFeed.textContent = "Nothing here yet.";
+    nowFeed.textContent = "nothing here yet.";
     return;
   }
 
@@ -56,7 +56,7 @@ function showPosts(rows) {
       time.dateTime = post.date.toISOString();
       time.textContent = post.date.toLocaleDateString("en-US", {
         year: "numeric", month: "long", day: "numeric"
-      });
+      }).toLowerCase();   // "november 19, 2026"
     }
 
     const text = document.createElement("p");

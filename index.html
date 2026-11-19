@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Corner of the Internet</title>
+    <title>my corner of the internet</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,7 +20,7 @@
         </ul>
 
         <!-- The cassette: press it to play or pause the mixtape -->
-        <button type="button" id="cassette" class="cassette cassette-mini" aria-label="Play the mixtape" aria-pressed="false" title="Play the mixtape">
+        <button type="button" id="cassette" class="cassette cassette-mini" aria-label="play the mixtape" aria-pressed="false" title="play the mixtape">
             <span class="cassette-label">
                 <span id="cassette-icon" class="cassette-icon" aria-hidden="true">▶</span>
             </span>
@@ -37,7 +37,7 @@
         <!-- ========== NOW ========== -->
         <section id="now">
             <h2>life updates</h2>
-            <p>What I'm focused on these days. No likes, no comments, just an update.</p>
+            <p>what i'm focused on these days or anything running through my mind</p>
 
             <!-- Filled in from your Google Form by now.js -->
             <div id="now-feed">
@@ -50,33 +50,33 @@
             <!-- Heading with the "pin something" button next to it -->
             <div class="section-header">
                 <h2>my face</h2>
-                <button type="button" id="open-form-btn" class="cartoon-btn">📌 Pin something</button>
+                <button type="button" id="open-form-btn" class="cartoon-btn">📌 pin something</button>
             </div>
             <p>leave a note, a picture, or a song.</p>
 
             <!-- ---------- The pop-up form ---------- -->
             <dialog id="note-dialog" class="note-dialog">
                 <form id="note-form" class="note-form">
-                    <button type="button" id="close-form-btn" class="close-btn" aria-label="Close">×</button>
+                    <button type="button" id="close-form-btn" class="close-btn" aria-label="close">×</button>
                     <h3 id="form-title">pin something to the board</h3>
 
                     <!-- Note or Song -->
                     <div class="mode-tabs" role="tablist">
-                        <button type="button" class="mode-tab is-active" data-mode="note" role="tab" aria-selected="true">📝 Note</button>
-                        <button type="button" class="mode-tab" data-mode="song" role="tab" aria-selected="false">🎵 Song</button>
+                        <button type="button" class="mode-tab is-active" data-mode="note" role="tab" aria-selected="true">📝 note</button>
+                        <button type="button" class="mode-tab" data-mode="song" role="tab" aria-selected="false">🎵 song</button>
                     </div>
 
                     <div class="form-row">
                         <div class="field">
                             <label for="note-name">your name</label>
-                            <input type="text" id="note-name" maxlength="40" placeholder="So I know who it's from">
+                            <input type="text" id="note-name" maxlength="40" placeholder="so i know who it's from">
                         </div>
 
                         <fieldset class="color-picker">
                             <legend>color</legend>
-                            <label><input type="radio" name="color" value="purple" checked><span class="swatch note-purple"></span>Purple</label>
-                            <label><input type="radio" name="color" value="teal"><span class="swatch note-teal"></span>Teal</label>
-                            <label><input type="radio" name="color" value="coral"><span class="swatch note-coral"></span>Coral</label>
+                            <label><input type="radio" name="color" value="purple" checked><span class="swatch note-purple"></span>purple</label>
+                            <label><input type="radio" name="color" value="teal"><span class="swatch note-teal"></span>teal</label>
+                            <label><input type="radio" name="color" value="coral"><span class="swatch note-coral"></span>coral</label>
                         </fieldset>
                     </div>
 
@@ -84,20 +84,23 @@
                     <div class="form-row song-fields" hidden>
                         <div class="field">
                             <label for="song-title">song</label>
-                            <input type="text" id="song-title" maxlength="100" placeholder="Song title">
+                            <input type="text" id="song-title" maxlength="100" placeholder="song title">
                         </div>
                         <div class="field">
                             <label for="song-artist">artist</label>
-                            <input type="text" id="song-artist" maxlength="100" placeholder="Who sings it?">
+                            <input type="text" id="song-artist" maxlength="100" placeholder="artist">
                         </div>
                     </div>
 
                     <label for="note-text" id="note-label">your note</label>
-                    <textarea id="note-text" maxlength="280" rows="2" placeholder="Say hi, share a memory, roast me..."></textarea>
+                    <textarea id="note-text" maxlength="280" rows="2" placeholder="say hi, share a memory, roast me..."></textarea>
 
                     <div class="form-row photo-row note-only">
                         <label for="note-photo">photo <span class="optional">(optional, makes it a polaroid)</span></label>
-                        <input type="file" id="note-photo" accept="image/*">
+                        <!-- The real file picker is hidden; the lowercase button below opens it -->
+                        <input type="file" id="note-photo" class="visually-hidden" accept="image/*">
+                        <label for="note-photo" class="file-btn">choose a photo</label>
+                        <span id="photo-name" class="photo-name">no photo yet</span>
                     </div>
 
                     <div class="form-buttons">
@@ -126,7 +129,7 @@
                 </div>
 
                 <figure class="polaroid" style="--x: 24%; --y: 14%; --tilt: 4deg">
-                    <img src="images/IMG_8897.JPG" alt="Describe your photo">
+                    <img src="images/IMG_8897.JPG" alt="throwback photo">
                     <figcaption>throwback to the best day</figcaption>
                 </figure>
 
@@ -136,6 +139,9 @@
 
             </div>
 
+            <!-- Only shows on small screens, where the board is shrunk down -->
+            <p class="board-hint">tap a note to read it up close</p>
+
             <!-- ---------- The Mixtape ---------- -->
             <div class="mixtape-area">
 
@@ -144,25 +150,25 @@
 
                 <!-- The playlist itself -->
                 <div class="mixtape">
-                    <h3>The Mixtape</h3>
+                    <h3>the mixtape</h3>
 
                     <!-- Spotify's own player (the "tape deck"). myface.js puts it here. -->
                     <div id="spotify-embed"></div>
 
                     <p class="spotify-note">
-                        🎧 Log in to <a href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a>
-                        in this browser to hear full songs. Otherwise you'll hear 30-second previews,
-                        or you can <a href="https://open.spotify.com/playlist/7zKcvxlWwbhThio6C5ZrXa" target="_blank" rel="noopener">open the playlist in Spotify</a>.
+                        🎧 log in to <a href="https://open.spotify.com" target="_blank" rel="noopener">spotify</a>
+                        in this browser to hear full songs. otherwise you'll hear 30-second previews,
+                        or you can <a href="https://open.spotify.com/playlist/7zKcvxlWwbhThio6C5ZrXa" target="_blank" rel="noopener">open the playlist in spotify</a>.
                     </p>
 
-                    <h4>Mixtape Index</h4>
+                    <h4>mixtape index</h4>
                     <!-- Filled in from the real playlist by myface.js -->
                     <ol id="mixtape-index" class="mixtape-index">
-                        <li class="mixtape-loading">Loading the mixtape…</li>
+                        <li class="mixtape-loading">loading the mixtape…</li>
                     </ol>
 
                     <div class="mixtape-actions">
-                        <button type="button" id="add-song-btn" class="cartoon-btn btn-coral">🎵 Add a song</button>
+                        <button type="button" id="add-song-btn" class="cartoon-btn btn-coral">🎵 add a song</button>
                         <p id="mixtape-status" class="form-status" role="status"></p>
                     </div>
                 </div>
@@ -175,8 +181,8 @@
 
         <!-- ========== CURIOSITY CABINET ========== -->
         <section id="cabinet">
-            <h2>The Curiosity Cabinet</h2>
-            <p>Coming soon: a messy archive of things I find interesting.</p>
+            <h2>the curiosity cabinet</h2>
+            <p>coming soon: a messy archive of things i find interesting.</p>
         </section>
 
     </main>

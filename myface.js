@@ -38,6 +38,7 @@ const nameInput = document.getElementById("note-name");
 const noteLabel = document.getElementById("note-label");
 const noteInput = document.getElementById("note-text");
 const photoInput = document.getElementById("note-photo");
+const photoName = document.getElementById("photo-name");
 const songFields = document.querySelector(".song-fields");
 const songTitleInput = document.getElementById("song-title");
 const songArtistInput = document.getElementById("song-artist");
@@ -75,7 +76,7 @@ function buildPin(data) {
 
     const img = document.createElement("img");
     img.src = data.imageUrl;
-    img.alt = "Photo from " + data.name;
+    img.alt = "photo from " + data.name;
 
     const caption = document.createElement("figcaption");
     caption.textContent = data.note;
@@ -132,7 +133,7 @@ async function loadBoard() {
     .order("created_at", { ascending: true });   // oldest first, so newer notes land on top
 
   if (error) {
-    placeStatus.textContent = "The board couldn't load: " + error.message;
+    placeStatus.textContent = "the board couldn't load: " + error.message;
     placeBar.hidden = false;
     pinButton.hidden = editButton.hidden = cancelButton.hidden = true;
     return;
@@ -180,10 +181,10 @@ function updateButtons() {
   const songDone = usedRecently("song");
 
   openButton.disabled = noteDone && songDone;
-  openButton.textContent = openButton.disabled ? "📌 All done! Come back tomorrow" : "📌 Pin something";
+  openButton.textContent = openButton.disabled ? "📌 all done! come back tomorrow" : "📌 pin something";
 
   addSongButton.disabled = songDone;
-  addSongButton.textContent = songDone ? "🎵 Song added! Come back tomorrow" : "🎵 Add a song";
+  addSongButton.textContent = songDone ? "🎵 song added! come back tomorrow" : "🎵 add a song";
 }
 
 
@@ -201,20 +202,20 @@ function setMode(newMode) {
     tab.setAttribute("aria-selected", String(active));
   });
 
-  formTitle.textContent = isSong ? "Add a song to the mixtape" : "Pin something to the board";
+  formTitle.textContent = isSong ? "add a song to the mixtape" : "pin something to the board";
   songFields.hidden = !isSong;
   document.querySelectorAll(".note-only").forEach(el => { el.hidden = isSong; });
 
-  noteLabel.textContent = isSong ? "Why this song?" : "Your note";
-  noteInput.placeholder = isSong ? "A memory, a mood, why it reminds you of me..." : "Say hi, share a memory, roast me...";
+  noteLabel.textContent = isSong ? "why this song?" : "your note";
+  noteInput.placeholder = isSong ? "a memory, a mood, why it reminds you of me..." : "say hi, share a memory, roast me...";
   noteInput.maxLength = isSong ? 200 : 280;
-  submitButton.textContent = isSong ? "Add to the mixtape 🎵" : "Place it on the board →";
+  submitButton.textContent = isSong ? "add to the mixtape 🎵" : "place it on the board →";
 
   // Already used today?
   const used = usedRecently(isSong ? "song" : "pin");
   submitButton.disabled = used;
   formStatus.textContent = used
-    ? (isSong ? "You've already added a song today. Come back tomorrow!" : "You've already pinned a note today. Come back tomorrow!")
+    ? (isSong ? "you've already added a song today. come back tomorrow!" : "you've already pinned a note today. come back tomorrow!")
     : "";
 }
 
@@ -253,6 +254,7 @@ photoInput.addEventListener("change", () => {
   photoPreviewUrl = "";
 
   const file = photoInput.files[0];
+  photoName.textContent = file ? file.name.toLowerCase() : "no photo yet";
   if (!file) {
     if (preview) renderPreview();
     return;
@@ -274,15 +276,16 @@ photoInput.addEventListener("change", () => {
     }, "image/jpeg", 0.85);
   };
   img.onerror = () => {
-    formStatus.textContent = "That photo couldn't be opened. Try a JPG or PNG.";
+    formStatus.textContent = "that photo couldn't be opened. try a jpg or png.";
     photoInput.value = "";
+    photoName.textContent = "no photo yet";
   };
   img.src = URL.createObjectURL(file);
 });
 
 function currentData() {
   return {
-    name: nameInput.value.trim() || "Anonymous",
+    name: nameInput.value.trim() || "anonymous",
     note: noteInput.value.trim(),
     color: form.querySelector('input[name="color"]:checked').value,
     imageUrl: photoPreviewUrl
@@ -314,7 +317,7 @@ function renderPreview() {
 // "Place it on the board": close the pop-up and let them drag
 function startPlacing() {
   if (!noteInput.value.trim()) {
-    formStatus.textContent = "Write a note first!";
+    formStatus.textContent = "write a note first!";
     noteInput.focus();
     return;
   }
@@ -323,7 +326,7 @@ function startPlacing() {
   renderPreview();
   dialog.close();
 
-  placeStatus.textContent = "Drag your note anywhere on the board, then pin it!";
+  placeStatus.textContent = "drag your note anywhere on the board, then pin it!";
   placeBar.hidden = false;
   board.scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -375,7 +378,7 @@ pinButton.addEventListener("click", async () => {
 
   const data = currentData();
   pinButton.disabled = editButton.disabled = cancelButton.disabled = true;
-  pinButton.textContent = "Pinning…";
+  pinButton.textContent = "pinning…";
   placeStatus.textContent = "";
 
   try {
@@ -410,14 +413,15 @@ pinButton.addEventListener("click", async () => {
     placeBar.hidden = true;
     noteInput.value = "";
     photoInput.value = "";
+    photoName.textContent = "no photo yet";
     photoBlob = null;
     photoPreviewUrl = "";
     markUsed("pin");
   } catch (error) {
-    placeStatus.textContent = "Something went wrong: " + error.message;
+    placeStatus.textContent = "something went wrong: " + error.message;
   } finally {
     pinButton.disabled = editButton.disabled = cancelButton.disabled = false;
-    pinButton.textContent = "📌 Pin it!";
+    pinButton.textContent = "📌 pin it!";
   }
 });
 
@@ -426,6 +430,31 @@ function randomId() {
   if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
   return Date.now() + "-" + Math.random().toString(36).slice(2);
 }
+
+
+// =====================================================
+// Small screens: tap a note to read it up close
+// =====================================================
+
+const zoomDialog = document.createElement("dialog");
+zoomDialog.className = "zoom-dialog";
+zoomDialog.setAttribute("aria-label", "note close-up");
+document.body.append(zoomDialog);
+
+board.addEventListener("click", event => {
+  if (board.clientWidth > 800) return;               // big screens can read the board as is
+
+  const pin = event.target.closest(".corkboard > *");
+  if (!pin || pin.classList.contains("is-preview")) return;
+
+  const copy = pin.cloneNode(true);
+  copy.removeAttribute("style");                     // drop its board position
+  zoomDialog.replaceChildren(copy);
+  zoomDialog.showModal();
+});
+
+// Tap anywhere to close it
+zoomDialog.addEventListener("click", () => zoomDialog.close());
 
 
 // =====================================================
@@ -441,21 +470,21 @@ async function submitSong() {
   const why = noteInput.value.trim();
 
   if (!title) {
-    formStatus.textContent = "Which song?";
+    formStatus.textContent = "which song?";
     songTitleInput.focus();
     return;
   }
   if (!why) {
-    formStatus.textContent = "Tell us why you picked it!";
+    formStatus.textContent = "tell us why you picked it!";
     noteInput.focus();
     return;
   }
 
-  const name = nameInput.value.trim() || "Anonymous";
+  const name = nameInput.value.trim() || "anonymous";
   const color = form.querySelector('input[name="color"]:checked').value;
 
   submitButton.disabled = true;
-  submitButton.textContent = "Adding…";
+  submitButton.textContent = "adding…";
   formStatus.textContent = "";
 
   try {
@@ -478,13 +507,13 @@ async function submitSong() {
     dialog.close();
     markUsed("song");
 
-    mixtapeStatus.textContent = "Added “" + result.song.title + "” by " + result.song.artist + "! 🎶";
+    mixtapeStatus.textContent = "added “" + result.song.title + "” by " + result.song.artist + "! 🎶";
     document.querySelector(".mixtape-area").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
-    formStatus.textContent = "Something went wrong: " + error.message;
+    formStatus.textContent = "something went wrong: " + error.message;
   } finally {
     submitButton.disabled = usedRecently("song");
-    submitButton.textContent = "Add to the mixtape 🎵";
+    submitButton.textContent = "add to the mixtape 🎵";
   }
 }
 
@@ -523,11 +552,11 @@ function renderMixtape() {
   mixtapeList.innerHTML = "";
 
   if (playlistSongs === null) {
-    mixtapeList.append(messageItem("The mixtape couldn't load right now."));
+    mixtapeList.append(messageItem("the mixtape couldn't load right now."));
     return;
   }
   if (playlistSongs.length === 0) {
-    mixtapeList.append(messageItem("The mixtape is empty. Add the first song!"));
+    mixtapeList.append(messageItem("the mixtape is empty. add the first song!"));
     return;
   }
 
@@ -583,7 +612,7 @@ let spotifyPlayer = null;   // Spotify's controller, once it's ready
 function showPlaying(isPlaying) {
   cassette.classList.toggle("is-playing", isPlaying);
   cassette.setAttribute("aria-pressed", String(isPlaying));
-  const label = isPlaying ? "Pause the mixtape" : "Play the mixtape";
+  const label = isPlaying ? "pause the mixtape" : "play the mixtape";
   cassette.setAttribute("aria-label", label);
   cassette.title = label;
   cassetteIcon.textContent = isPlaying ? "❚❚" : "▶";

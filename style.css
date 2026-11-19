@@ -108,7 +108,7 @@ section {
   background-position: 0 0, 3px 5px;
 
   /* Wooden frame and the "lying on top of the page" shadow */
-  border: 14px solid #8b5a2b;
+  border: clamp(6px, 1.3vw, 14px) solid #8b5a2b;
   border-radius: 6px;
   box-shadow:
     0 25px 50px rgba(0, 0, 0, 0.35),
@@ -116,8 +116,21 @@ section {
 
   /* Free placement: notes are positioned anywhere inside the board */
   position: relative;
-  height: 650px;
   overflow: hidden;   /* nothing hangs off the edge */
+
+  /* Scaling: the board always keeps the same shape (1100 wide × 650 tall).
+     On a phone the whole board, notes and all, shrinks like a photo of it,
+     so every note stays in the same spot relative to the others. */
+  aspect-ratio: 1100 / 650;
+  container-type: inline-size;   /* lets notes size themselves with "cqw" units */
+}
+
+/* Notes on the board size themselves from the board's width.
+   1cqw = 1% of the board's width, so at full size (1100px) this is 14.4px,
+   and everything inside the note is measured in "em" off of it. */
+.corkboard > .sticky-note,
+.corkboard > .polaroid {
+  font-size: 1.309cqw;
 }
 
 /* Anything on the board sits at its own x/y spot and tilt.
@@ -143,6 +156,11 @@ section {
   transition: rotate 0.2s, scale 0.2s;
 }
 
+/* On the board, the shadow shrinks along with the notes */
+.corkboard > * {
+  box-shadow: 0 0.55cqw 1.1cqw rgba(0, 0, 0, 0.3);
+}
+
 /* Straighten, lift and bring a note to the front when you hover */
 .corkboard > *:hover,
 .why-notes > *:hover {
@@ -166,23 +184,32 @@ section {
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* Sticky notes */
+/* Pins on the board shrink with it too */
+.corkboard > *::before {
+  top: -0.73cqw;
+  width: 1.45cqw;
+  height: 1.45cqw;
+  margin-left: -0.73cqw;
+}
+
+/* Sticky notes (sizes in "em", so they scale with the font size) */
 .sticky-note {
-  width: 150px;
-  min-height: 130px;
-  padding: 1.1rem 0.9rem 0.7rem;
+  width: 12.4em;          /* about 179px at full size */
+  min-height: 11em;       /* about 158px */
+  padding: 1.2em 1em 0.8em;
   font-family: "Bradley Hand", "Segoe Print", cursive;
   font-size: 0.9rem;
   line-height: 1.4;
   color: var(--neutral-dark);
+  box-sizing: border-box;
 }
 
-.sticky-note p { margin: 0 0 0.5rem; }
+.sticky-note p { margin: 0 0 0.55em; }
 
 .signature {
   display: block;
   text-align: right;
-  font-size: 0.8rem;
+  font-size: 0.89em;
 }
 
 /* The three colors visitors can choose from */
@@ -193,9 +220,11 @@ section {
 /* Polaroids */
 .polaroid {
   background: white;
-  width: 160px;
+  width: 12.2em;          /* about 176px at full size */
   margin: 0;
-  padding: 8px 8px 10px;
+  padding: 0.55em 0.55em 0.7em;
+  font-size: 0.9rem;
+  box-sizing: border-box;
 }
 
 .polaroid img {
@@ -214,8 +243,8 @@ section {
 .polaroid figcaption {
   font-family: "Bradley Hand", "Segoe Print", cursive;
   text-align: center;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
+  font-size: 0.94em;
+  margin-top: 0.55em;
   color: var(--neutral-dark);
 }
 
@@ -470,23 +499,45 @@ section {
 
 .photo-row label { margin: 0; }
 
-.note-form input[type="file"] {
-  font: inherit;
-  font-size: 0.85rem;
-  color: #666;
+/* Hides the browser's own file picker but keeps it usable */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.note-form input[type="file"]::file-selector-button {
-  margin-right: 0.6rem;
+/* Our lowercase "choose a photo" button */
+.note-form label.file-btn {
+  display: inline-block;
+  margin: 0;
   padding: 0.3rem 0.75rem;
   background: white;
   border: 2px solid var(--neutral-dark);
   border-radius: 8px;
   box-shadow: 2px 2px 0 var(--neutral-dark);
-  font: inherit;
+  font-family: inherit;
+  font-size: 0.9rem;
   font-weight: bold;
   color: var(--neutral-dark);
   cursor: pointer;
+}
+
+.note-form label.file-btn:hover {
+  background: var(--accent-light);
+}
+
+#note-photo:focus-visible + .file-btn {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.photo-name {
+  font-size: 0.85rem;
+  color: #666;
+  overflow-wrap: anywhere;
 }
 
 .form-buttons {
@@ -657,7 +708,6 @@ section {
   font-size: 0.7rem;
   font-weight: bold;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: #888;
 }
 
@@ -864,8 +914,7 @@ section {
   font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
   font-size: 0.75rem;
   font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   margin-bottom: 0.5rem;
 }
 
@@ -891,5 +940,106 @@ section {
 
   .why-notes:last-child {
     order: 3;
+  }
+}
+
+
+/* =====================================================
+   Phones and small screens
+   ===================================================== */
+
+/* "Tap a note" hint: hidden on big screens */
+.board-hint {
+  display: none;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #888;
+  margin: -2.5rem 0 3rem;
+}
+
+/* The close-up view when you tap a note on a small board */
+.zoom-dialog {
+  border: none;
+  padding: 1.5rem;
+  background: transparent;
+  overflow: visible;
+  max-width: 90vw;
+}
+
+.zoom-dialog:focus {
+  outline: none;
+}
+
+.zoom-dialog::backdrop {
+  background: rgba(51, 51, 51, 0.6);
+}
+
+.zoom-dialog > * {
+  font-size: 1.15rem;
+  rotate: -1.5deg;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
+}
+
+.zoom-dialog > .sticky-note { width: min(75vw, 12em); }
+.zoom-dialog > .polaroid    { width: min(75vw, 14em); }
+
+@media (max-width: 800px) {
+  .board-hint { display: block; }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 1.25rem 0.75rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  /* Navbar: smaller, and the links can wrap onto two lines */
+  nav {
+    padding: 0.55rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  nav ul {
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+  }
+
+  nav a {
+    font-size: 0.95rem;
+  }
+
+  section {
+    scroll-margin-top: 7rem;
+  }
+
+  .cartoon-btn {
+    padding: 0.5rem 0.9rem;
+  }
+
+  /* Placing bar: message on top, buttons underneath */
+  .place-bar {
+    top: 6rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .place-buttons {
+    justify-content: space-between;
+  }
+
+  /* Pop-up card: a little less padding */
+  .note-form {
+    padding: 1.4rem 1rem 1rem 2.6rem;
+  }
+
+  .mixtape {
+    padding: 1rem;
+  }
+
+  .why-notes .why-note {
+    width: 150px;
   }
 }
