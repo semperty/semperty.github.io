@@ -14,6 +14,7 @@
 
     <nav>
         <ul>
+            <li><a href="#nightstand-section">nightstand</a></li>
             <li><a href="#now">life updates</a></li>
             <li><a href="#myface">my face</a></li>
             <li><a href="#cabinet">curiosity cabinet</a></li>
@@ -33,6 +34,12 @@
     </nav>
 
     <main>
+
+        <!-- ========== ON MY NIGHTSTAND (reading + watching, filled in by nightstand.js) ========== -->
+        <section id="nightstand-section">
+            <h2 class="section-subheading">on my nightstand</h2>
+            <div id="nightstand" class="nightstand"></div>
+        </section>
 
         <!-- ========== NOW ========== -->
         <section id="now">
@@ -179,18 +186,36 @@
             </div>
         </section>
 
-        <!-- ========== CURIOSITY CABINET ========== -->
+        <!-- ========== CURIOSITY CABINET (filled in by cabinet.js) ========== -->
         <section id="cabinet">
             <h2>the curiosity cabinet</h2>
-            <p>coming soon: a messy archive of things i find interesting.</p>
+            <p>a messy archive of things i find interesting. there's a new exhibit every day, and you get to open one drawer a day. choose wisely!</p>
+
+            <!-- Today's exhibit: the same for everyone today -->
+            <div id="exhibit" class="exhibit" hidden></div>
+
+            <!-- The drawers -->
+            <div class="cabinet-frame">
+                <div id="cabinet-drawers" class="cabinet-drawers">
+                    <p class="cabinet-loading">dusting off the cabinet…</p>
+                </div>
+            </div>
+
+            <!-- What they found -->
+            <div id="cabinet-result" class="cabinet-result" hidden></div>
+
+            <!-- Collector code + shelf -->
+            <div id="collector" class="collector"></div>
         </section>
 
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="now.js"></script>
+    <script src="nightstand.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="myface.js"></script>
+    <script src="cabinet.js"></script>
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 
 </body>

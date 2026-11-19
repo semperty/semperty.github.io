@@ -632,9 +632,30 @@ window.onSpotifyIframeApiReady = IFrameAPI => {
     // Keep the reels in sync, even when someone uses Spotify's own buttons
     controller.addListener("playback_update", event => {
       showPlaying(!event.data.isPaused);
+      repeatAtTheEnd(event.data);
     });
   });
 };
+
+// Repeat: when the last song on the playlist finishes, start again from the top.
+// Spotify's player has no repeat setting, so we watch for the final song ending.
+let finalSongNearEnd = false;
+
+function repeatAtTheEnd(state) {
+  if (!playlistSongs || playlistSongs.length === 0) return;
+  const lastUri = playlistSongs[playlistSongs.length - 1].uri;
+  const onLastSong = state.playingURI === lastUri;
+  const nearEnd = state.duration > 0 && state.position >= state.duration - 2000;
+
+  if (onLastSong && !state.isPaused && nearEnd) {
+    finalSongNearEnd = true;            // the last song is in its final couple of seconds
+  } else if (finalSongNearEnd && state.isPaused) {
+    finalSongNearEnd = false;           // ...and then it stopped: that's the end of the tape
+    spotifyPlayer.play();               // play() starts the playlist from the first song
+  } else if (!onLastSong) {
+    finalSongNearEnd = false;
+  }
+}
 
 cassette.addEventListener("click", () => {
   if (spotifyPlayer) {
@@ -645,6 +666,55 @@ cassette.addEventListener("click", () => {
     window.open("https://open.spotify.com/playlist/" + PLAYLIST_ID, "_blank", "noopener");
   }
 });
+
+
+// =====================================================
+// Stay put when the song changes
+// Spotify's player pulls itself into view when it moves to the next song,
+// which yanks the page down to the playlist. If the page jumps to the player
+// without you scrolling or clicking, this puts you right back where you were.
+// =====================================================
+
+(function keepScrollWhenSongsChange() {
+  // Where you last chose to be, and whether the player was on screen there
+  let restY = window.scrollY;
+  let restHadPlayer = playerInView();
+  let lastInput = 0;
+  let settleTimer = null;
+
+  const markInput = () => { lastInput = Date.now(); };
+  ["wheel", "touchstart", "touchmove", "mousedown", "keydown", "click"].forEach(type =>
+    window.addEventListener(type, markInput, { passive: true, capture: true }));
+
+  function playerInView() {
+    // Spotify swaps the placeholder for its own iframe, so look inside the mixtape card
+    const player = document.querySelector(".mixtape-area iframe") || document.getElementById("spotify-embed");
+    if (!player) return false;
+    const box = player.getBoundingClientRect();
+    return box.bottom > 0 && box.top < window.innerHeight;
+  }
+
+  function remember() {
+    restY = window.scrollY;
+    restHadPlayer = playerInView();
+  }
+
+  window.addEventListener("scroll", () => {
+    clearTimeout(settleTimer);
+
+    // You scrolled or clicked: this is where you want to be
+    if (Date.now() - lastInput < 1500) { remember(); return; }
+
+    // Nobody touched anything, but the page moved to the player: undo it
+    if (!restHadPlayer && playerInView() && Math.abs(window.scrollY - restY) > 200) {
+      window.scrollTo({ top: restY, behavior: "instant" });
+      return;
+    }
+
+    // Small shifts (like the board finishing loading): remember once things settle
+    settleTimer = setTimeout(() => { if (!playerInView() || restHadPlayer) remember(); }, 300);
+  }, { passive: true });
+})();
 
 
 // =====================================================
